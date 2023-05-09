@@ -116,12 +116,15 @@ if __name__ == '__main__':
             new_state = deepcopy(main_state)
             new_state.move(valid_move[0], valid_move[1])
             possible_states.append(new_state)
+        #print(f'possible states {possible_states}')
         for state in possible_states:
             # if state is goal, stop search
             if state.is_finished():
                 print("Finished")
-                #print(state.prev_moves)
-                break
+                state.prev_moves.append(state.compute_hash())
+                print(state.prev_moves)
+                exit()
+                
             else: # compute f for possible state
                 state.g = main_state.g + 1
                 #state.h = 
@@ -147,6 +150,7 @@ if __name__ == '__main__':
         # push main state on closed list
         closed_list.append(main_state)
         #print(f'closed list {closed_list}')
+    # end while loop
                 
 
         

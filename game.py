@@ -15,6 +15,10 @@ class Game:
             #self.towers[0].append(chr(ord('A') + i))
             self.towers[0].append(str(i+1))
 
+    def calc_h(self):
+        h = len(self.towers[0])-len(self.towers[-1])
+        return h
+
     def move(self, old_tower, new_tower):
         if not self.towers[old_tower]:
             print("No disks in old_tower")
@@ -56,7 +60,6 @@ class Game:
     def is_finished(self):
         if len(self.towers[-1]) == self.num_disks:
             return True
-        
         
     def __repr__(self):
         return str(self.towers)
@@ -100,8 +103,7 @@ if __name__ == '__main__':
 
     ### a* move algorithm ###
     game = Game(3,3)
-    open_list = []
-    closed_list = []
+    open_list, closed_list = [], []
     open_list.append(game)
     while open_list:
         # find state with lowest f on open list
@@ -110,7 +112,7 @@ if __name__ == '__main__':
         #print(f'open list {open_list}')
         open_list.remove(main_state)
 
-        # generate possible new states
+        # generate possible new states from main state
         possible_states = []
         for valid_move in main_state.get_valid_moves():
             new_state = deepcopy(main_state)
@@ -120,33 +122,30 @@ if __name__ == '__main__':
         for state in possible_states:
             # if state is goal, stop search
             if state.is_finished():
-                print("Finished")
+                print("Finished Searcn, Shortest Path:")
                 state.prev_moves.append(state.compute_hash())
                 print(state.prev_moves)
                 exit()
                 
             else: # compute f for possible state
                 state.g = main_state.g + 1
-                #state.h = 
+                state.h = state.calc_h()
                 state.f = state.g + state.h
 
             skip = False
             # if state with same position as possible state is in open list
-            # which has lower f than possible state, skip possible state
+            # and has lower f than possible state, skip
             for open_state in open_list:
                 if open_state.towers == state.towers and open_state.f < state.f:
                     skip = True
             # if state with same position as possible state is in closed list
-            # which has lower f than possible state, skip possible state
+            # and has lower f than possible state, skip
             for closed_state in closed_list:
                 if closed_state.towers == state.towers and closed_state.f < state.f:
                     skip = True
-            
-
-            
             if skip: continue
             # add possible state to open list
-            open_list.append(state)
+            else: open_list.append(state)
         # push main state on closed list
         closed_list.append(main_state)
         #print(f'closed list {closed_list}')

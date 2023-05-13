@@ -1,5 +1,6 @@
 
 from copy import deepcopy
+import os
 
 class Game:
     def __init__(self, towers, disks):
@@ -61,12 +62,21 @@ class Game:
         if len(self.towers[-1]) == self.num_disks:
             return True
         
+    def print_path(self):
+        print(self.prev_moves)
+        with open('output.txt', 'w') as f:
+            for move in self.prev_moves:
+                f.write(move + '\n')
+
+        
     def __repr__(self):
         return str(self.towers)
     
 def get_lowest_f(open_list):
     lowest_f = min(open_list, key=lambda state: state.f)
     return lowest_f
+
+    
     
 
 if __name__ == '__main__':
@@ -124,7 +134,7 @@ if __name__ == '__main__':
             if state.is_finished():
                 print("Finished Searcn, Shortest Path:")
                 state.prev_moves.append(state.compute_hash())
-                print(state.prev_moves)
+                state.print_path()
                 exit()
                 
             else: # compute f for possible state

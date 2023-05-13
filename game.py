@@ -16,22 +16,33 @@ class Game:
             #self.towers[0].append(chr(ord('A') + i))
             self.towers[0].append(str(i+1))
 
+        # add beginning state to prev_moves
+        key = []
+        for i, tower in enumerate(self.towers):
+            key.append(''.join(self.towers[i]))
+        self.prev_moves.append('|'.join(key))
+
     def calc_h(self):
         h = len(self.towers[0])-len(self.towers[-1])
         return h
 
     def move(self, old_tower, new_tower):
-        if not self.towers[old_tower]:
-            print("No disks in old_tower")
-            return False
-        elif self.towers[new_tower] and self.towers[old_tower][0] > self.towers[new_tower][0]:
-            print("Disk in new_tower is smaller than old_tower")
-            return False
-        else:
-            self.towers[new_tower].insert(0, self.towers[old_tower].pop(0))
-            move_hash = self.compute_hash(new_tower,old_tower)
-            if move_hash not in self.prev_moves: self.prev_moves.append(move_hash)
-            return True
+        # if not self.towers[old_tower]:
+        #     print("No disks in old_tower")
+        #     return False
+        # elif self.towers[new_tower] and self.towers[old_tower][0] > self.towers[new_tower][0]:
+        #     print("Disk in new_tower is smaller than old_tower")
+        #     return False
+        # else:
+        self.towers[new_tower].insert(0, self.towers[old_tower].pop(0))
+        move_hash = self.compute_hash(old_tower,new_tower)
+        print(f'---{old_tower},{new_tower}')
+        print(f'move hash {move_hash}')
+        if move_hash not in self.prev_moves: self.prev_moves.append(move_hash)
+        # self.towers[new_tower].insert(0, self.towers[old_tower].pop(0))
+        # move_hash = self.compute_hash(old_tower=old_tower, new_tower=new_tower)
+        # print(f'move hash {move_hash}')
+        # if move_hash not in self.prev_moves: self.prev_moves.append(move_hash)
         
     # get valid moves from current state
     def get_valid_moves(self):
@@ -42,16 +53,20 @@ class Game:
             for j, new_tower in enumerate(self.towers): # other towers
                 if not new_tower or old_tower[0] < new_tower[0]: # if new tower is empty or top disk is smaller, valid move
                     key = self.compute_hash(i,j)
+                    print(f'key {key}')
                     if key not in self.prev_moves:
                         valid_moves.append((i,j))
                     #self.prev_moves.append(key)
+        print(f'valid moves {valid_moves}')
+        print()
         return valid_moves
     
     def compute_hash(self, old_tower=None, new_tower=None):
         temp = deepcopy(self.towers)
-        #print(f'temp copy {temp}')
-        if old_tower:
-            temp[new_tower].insert(0, temp[old_tower].pop(0))
+        print(f'compute hash {temp}')
+        print(f'{old_tower},{new_tower}')
+        if temp[old_tower] and temp[old_tower] < temp[new_tower] or not temp[new_tower]:
+             temp[new_tower].insert(0, temp[old_tower].pop(0))
         key = []
         for i, tower in enumerate(temp):
             key.append(''.join(temp[i]))
@@ -126,14 +141,16 @@ if __name__ == '__main__':
         possible_states = []
         for valid_move in main_state.get_valid_moves():
             new_state = deepcopy(main_state)
+            print(f'NEW STATE {new_state}')
+            print(f'BEFORE moves {new_state.prev_moves}')
             new_state.move(valid_move[0], valid_move[1])
+            print(f'AFTER moves {new_state.prev_moves}')
             possible_states.append(new_state)
         #print(f'possible states {possible_states}')
         for state in possible_states:
             # if state is goal, stop search
             if state.is_finished():
                 print("Finished Searcn, Shortest Path:")
-                state.prev_moves.append(state.compute_hash())
                 state.print_path()
                 exit()
                 
@@ -156,17 +173,12 @@ if __name__ == '__main__':
             if skip: continue
             # add possible state to open list
             else: open_list.append(state)
+            print()
         # push main state on closed list
         closed_list.append(main_state)
         #print(f'closed list {closed_list}')
     # end while loop
                 
-
-        
-
-
-
-
 
 """
 a* notes

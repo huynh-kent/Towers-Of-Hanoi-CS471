@@ -1,6 +1,4 @@
-
 from copy import deepcopy
-import os
 
 class Game:
     def __init__(self, towers, disks):
@@ -22,30 +20,31 @@ class Game:
             key.append(''.join(self.towers[i]))
         self.prev_moves.append('|'.join(key))
 
+    # calculate heuristic h (number of disks in starting tower - number of disks in last tower)
     def calc_h(self):
         h = len(self.towers[0])-len(self.towers[-1])
         return h
 
-
+    # move disk from old tower to new tower
     def move(self, old_tower, new_tower):
         self.towers[new_tower].insert(0, self.towers[old_tower].pop(0))
         move_hash = self.compute_hash(old_tower,new_tower)
-        if move_hash not in self.prev_moves: self.prev_moves.append(move_hash)
+        self.prev_moves.append(move_hash)                       # add move to prev_moves
         
     # get valid moves from current state
     def get_valid_moves(self):
         valid_moves = []
         for i, old_tower in enumerate(self.towers):
-            if not old_tower:   # if tower is empty skip
+            if not old_tower:                                    # if tower is empty skip
                 continue
-            for j, new_tower in enumerate(self.towers): # other towers
+            for j, new_tower in enumerate(self.towers):          # for other towers
                 if not new_tower or old_tower[0] < new_tower[0]: # if new tower is empty or top disk is smaller, valid move
                     key = self.compute_hash(i,j)
-                    if key not in self.prev_moves:
+                    if key not in self.prev_moves:               # if move is a new state, add to valid moves
                         valid_moves.append((i,j))
-
         return valid_moves
     
+    # compute hash for move
     def compute_hash(self, old_tower=None, new_tower=None):
         temp = deepcopy(self.towers)
         if temp[old_tower] and temp[old_tower] < temp[new_tower] or not temp[new_tower]:
@@ -55,35 +54,28 @@ class Game:
             key.append(''.join(temp[i]))
         return '|'.join(key)
     
+    # check if game is finished
     def is_finished(self):
         if len(self.towers[-1]) == self.num_disks:
             return True
         
+    # print and write shortest path to output.txt
     def print_path(self):
         print(self.prev_moves)
         with open('output.txt', 'w') as f:
             for move in self.prev_moves:
                 f.write(move + '\n')
-
         
     def __repr__(self):
         return str(self.towers)
     
+# get state with lowest f from open list
 def get_lowest_f(open_list):
     lowest_f = min(open_list, key=lambda state: state.f)
     return lowest_f
 
-    
-    
-
+# main
 if __name__ == '__main__':
-    # game = Game(3, 5)
-    # print(game)
-    # game.move(0,1)
-    # print(game)
-    # valid_moves = game.get_valid_moves()
-    # print(valid_moves)
-
     # ### first valid move algorithm ###
     # game = Game(3,5)
     # print(game)
@@ -109,6 +101,7 @@ if __name__ == '__main__':
     #     print(game.prev_moves)
 
     ### a* move algorithm ###
+    # init game
     game = Game(3,3)
     open_list, closed_list = [], []
     open_list.append(game)
@@ -116,7 +109,6 @@ if __name__ == '__main__':
         # find state with lowest f on open list
         main_state = get_lowest_f(open_list)
         # remove state from open list
-        #print(f'open list {open_list}')
         open_list.remove(main_state)
 
         # generate possible new states from main state
@@ -125,14 +117,17 @@ if __name__ == '__main__':
             new_state = deepcopy(main_state)
             new_state.move(valid_move[0], valid_move[1])
             possible_states.append(new_state)
+
+        # check if possible states have lower f, if so add to open list
         for state in possible_states:
             # if state is goal, stop search
             if state.is_finished():
-                print("Finished Searcn, Shortest Path:")
+                print("Finished Search, Shortest Path:")
                 state.print_path()
                 exit()
                 
-            else: # compute f for possible state
+            # compute f for possible state
+            else: 
                 state.g = main_state.g + 1
                 state.h = state.calc_h()
                 state.f = state.g + state.h
@@ -153,10 +148,8 @@ if __name__ == '__main__':
             else: open_list.append(state)
         # push main state on closed list
         closed_list.append(main_state)
-        #print(f'closed list {closed_list}')
     # end while loop
                 
-
 """
 a* notes
 f(n) = g(n) + h(n)

@@ -22,7 +22,7 @@ class Game:
 
     # calculate heuristic h (number of disks in starting tower - number of disks in last tower)
     def calc_h(self):
-        h = len(self.towers[0])-len(self.towers[-1])
+        h = len(self.towers[0])+(self.num_disks-len(self.towers[-1]))
         return h
 
     # move disk from old tower to new tower

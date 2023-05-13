@@ -61,13 +61,18 @@ class Game:
         
     # print and write shortest path to output.txt
     def print_path(self):
-        print(self.prev_moves)
+        print(str(self.prev_moves).replace("'",'').replace(',', ' -->').replace('[','').replace(']',''))
         with open('output.txt', 'w') as f:
             for move in self.prev_moves:
                 f.write(move + '\n')
-        
+
+    # print towers    
     def __repr__(self):
-        return str(self.towers)
+        key = []
+        for i, tower in enumerate(self.towers):
+            key.append(''.join(self.towers[i]))
+        return '|'.join(key)
+        #return str(self.towers)
     
 # get state with lowest f from open list
 def get_lowest_f(open_list):
@@ -106,8 +111,10 @@ if __name__ == '__main__':
     open_list, closed_list = [], []
     open_list.append(game)
     while open_list:
+        print(f'Frontier: {open_list}')
         # find state with lowest f on open list
         main_state = get_lowest_f(open_list)
+        print(f'Current State (Lowest F): {main_state} f: {main_state.f}')
         # remove state from open list
         open_list.remove(main_state)
 
@@ -131,6 +138,7 @@ if __name__ == '__main__':
                 state.g = main_state.g + 1
                 state.h = state.calc_h()
                 state.f = state.g + state.h
+                print(f'Next State: {state} g: {state.g} h: {state.h} f: {state.f}')
 
             skip = False
             # if state with same position as possible state is in open list
@@ -148,6 +156,7 @@ if __name__ == '__main__':
             else: open_list.append(state)
         # push main state on closed list
         closed_list.append(main_state)
+        print()
     # end while loop
                 
 """
@@ -159,6 +168,7 @@ f(x) = g(x) + h(x)
 hx = number of disks in wrong tower in state X
 gx = depth of node X in search tree
 
+# a* pseudocode
 # initialize open list
 # initialize closed list
 # put start node on open list (leave f at zero)
